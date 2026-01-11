@@ -1,6 +1,7 @@
 import { useState } from "react";
 import logoImage from "../assets/images/logo.png";
 import "./styles/header.css";
+import { useAuth } from '../contexts/AuthContext';
 
 interface HeaderProps {
   isLoggedIn?: boolean;
@@ -8,11 +9,12 @@ interface HeaderProps {
   isAdmin?: boolean;
 }
 
-export default function Header({
-  isLoggedIn = false,
-  userName = "",
-  isAdmin = false,
-}: HeaderProps) {
+export default function Header(props: HeaderProps) {
+  // context 값이 우선, props로 넘기면 fallback
+  const ctx = useAuth ? useAuth() : undefined;
+  const isLoggedIn = ctx?.isLoggedIn ?? props.isLoggedIn ?? false;
+  const userName = ctx?.userName ?? props.userName ?? '';
+  const isAdmin = ctx?.isAdmin ?? props.isAdmin ?? false;
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 
   const toggleMenu = (): void => {
