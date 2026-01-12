@@ -46,30 +46,20 @@ export async function patchChatReaction(
     throw new Error('인증이 필요합니다.');
   }
 
-  const res = await fetch(`${API_BASE}/api/chats/reaction`, {
+  const res = await fetch(`${API_BASE}/api/chats/${chatRoomId}`, {
     method: 'PATCH',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ chatRoomId, reactionType }),
+    body: JSON.stringify({ reactionType }),
   });
 
   const text = await res.text();
-  let apiResponse: ApiResponse<{ chatRoomId: number; likeCnt: number; dislikeCnt: number }>;
-  
-  try {
-    apiResponse = text ? JSON.parse(text) : { success: false };
-  } catch {
-    throw new Error('서버 응답 데이터 형식이 올바르지 않습니다.');
-  }
+  const apiResponse: ApiResponse<any> = text ? JSON.parse(text) : {};
 
   if (!res.ok || !apiResponse.success) {
     throw new Error(apiResponse.message || '공감 처리에 실패했습니다.');
-  }
-
-  if (!apiResponse.data) {
-    throw new Error('리액션 데이터를 받아오지 못했습니다.');
   }
 
   return apiResponse.data;

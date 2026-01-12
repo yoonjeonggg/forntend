@@ -26,7 +26,7 @@ export default function Header(props: HeaderProps) {
   return (
     <header className="header">
       <div className="header-container">
-        <div className="logo-section" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+        <div className="logo-section">
           <img
             src={logoImage}
             alt="경북소프트웨어마이스터고등학교"
@@ -50,19 +50,12 @@ export default function Header(props: HeaderProps) {
             className="login-button" 
             type="button"
             onClick={() => {
-              if (!isLoggedIn) {
-                navigate('/login');
-                return;
-              }
-            
-              if (isAdmin) {
-                navigate('/admin/users');
-              } else {
+              if (isLoggedIn && userName) {
                 navigate('/profile');
+              } else {
+                navigate('/login');
               }
             }}
-            
-            
           >
             {isLoggedIn && userName ? (
               <>

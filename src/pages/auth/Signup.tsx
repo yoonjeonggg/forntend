@@ -1,10 +1,10 @@
-import { useState, type FormEvent } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/images/logo.png';
 import './Signup.css';
 import { signup as signupService } from '../../services/auth';
 
-const Signup = () => {
+const Signup: React.FC = () => {
   const [studentNum, setStudentNum] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -14,7 +14,7 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     // 필수 입력 체크
