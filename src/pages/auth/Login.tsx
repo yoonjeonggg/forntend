@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/images/logo.png';
 import './Login.css';
 import { login as loginService } from '../../services/auth';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -10,6 +11,7 @@ const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,8 +19,7 @@ const Login: React.FC = () => {
     setError(null);
     try {
       const { refreshToken, accessToken } = await loginService({ email, password });
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('accessToken', accessToken);
+      login(accessToken, refreshToken);
       navigate('/');
     } catch (err: any) {
       setError(err.message);

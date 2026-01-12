@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import logoImage from "../assets/images/logo.png";
 import "./styles/header.css";
 import { useAuth } from '../contexts/AuthContext';
@@ -10,6 +11,7 @@ interface HeaderProps {
 }
 
 export default function Header(props: HeaderProps) {
+  const navigate = useNavigate();
   // context 값이 우선, props로 넘기면 fallback
   const ctx = useAuth ? useAuth() : undefined;
   const isLoggedIn = ctx?.isLoggedIn ?? props.isLoggedIn ?? false;
@@ -44,7 +46,17 @@ export default function Header(props: HeaderProps) {
         </button>
 
         <nav className={`nav-section ${isMenuOpen ? "active" : ""}`}>
-          <button className="login-button" type="button">
+          <button 
+            className="login-button" 
+            type="button"
+            onClick={() => {
+              if (isLoggedIn && userName) {
+                navigate('/profile');
+              } else {
+                navigate('/login');
+              }
+            }}
+          >
             {isLoggedIn && userName ? (
               <>
                 {isAdmin && <span className="admin-badge">관리자</span>}

@@ -4,8 +4,12 @@ interface AuthContextValue {
   isLoggedIn: boolean;
   isAdmin: boolean;
   userName: string;
+  userId: number | null;
+  userEmail: string;
+  studentNum: number | null;
   login: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
+  updateUserInfo: (name: string, email: string, studentNum: number) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -14,6 +18,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userName, setUserName] = useState('');
+  const [userId, setUserId] = useState<number | null>(null);
+  const [userEmail, setUserEmail] = useState('');
+  const [studentNum, setStudentNum] = useState<number | null>(null);
 
   // JWT 파싱
   function decodeJWT(token: string) {
@@ -37,10 +44,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoggedIn(true);
       setUserName(claims?.name || claims?.username || claims?.email || '');
       setIsAdmin(Boolean(claims?.role === 'ADMIN' || claims?.roles?.includes('ADMIN') || claims?.isAdmin));
+      setUserId(claims?.userId || claims?.id || null);
+      setUserEmail(claims?.email || '');
+      setStudentNum(claims?.studentNum || claims?.student_num || null);
     } else {
       setIsLoggedIn(false);
       setIsAdmin(false);
       setUserName('');
+      setUserId(null);
+      setUserEmail('');
+      setStudentNum(null);
     }
   }, []);
 
@@ -51,6 +64,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoggedIn(true);
     setUserName(claims?.name || claims?.username || claims?.email || '');
     setIsAdmin(Boolean(claims?.role === 'ADMIN' || claims?.roles?.includes('ADMIN') || claims?.isAdmin));
+    setUserId(claims?.userId || claims?.id || null);
+    setUserEmail(claims?.email || '');
+    setStudentNum(claims?.studentNum || claims?.student_num || null);
   };
 
   const logout = () => {
@@ -59,10 +75,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoggedIn(false);
     setIsAdmin(false);
     setUserName('');
+    setUserId(null);
+    setUserEmail('');
+    setStudentNum(null);
+  };
+
+  const updateUserInfo = (name: string, email: string, studentNum: number) => {
+    setUserName(name);
+    setUserEmail(email);
+    setStudentNum(studentNum);
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, isAdmin, userName, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, isAdmin, userName, userId, userEmail, studentNum, login, logout, updateUserInfo }}>
       {children}
     </AuthContext.Provider>
   );
