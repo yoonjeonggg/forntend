@@ -12,11 +12,13 @@ interface HeaderProps {
 
 export default function Header(props: HeaderProps) {
   const navigate = useNavigate();
-  // context 값이 우선, props로 넘기면 fallback
+
+  // context 우선, props는 fallback
   const ctx = useAuth();
   const isLoggedIn = ctx.isLoggedIn ?? props.isLoggedIn ?? false;
   const userName = ctx.userName || props.userName || '';
   const isAdmin = ctx.isAdmin ?? props.isAdmin ?? false;
+
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 
   const toggleMenu = (): void => {
@@ -31,6 +33,8 @@ export default function Header(props: HeaderProps) {
             src={logoImage}
             alt="경북소프트웨어마이스터고등학교"
             className="logo-image"
+            onClick={() => navigate('/')}
+            style={{ cursor: 'pointer' }}
           />
         </div>
 

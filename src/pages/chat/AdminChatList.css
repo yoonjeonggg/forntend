@@ -1,0 +1,136 @@
+/* 전체 페이지 */
+.admin-chat-page {
+    background: #fafafa;
+    min-height: 100vh;
+  }
+  
+  /* 🔥 중앙 기준 컨테이너 */
+  .admin-chat-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px;
+  }
+  
+  /* ===== 채팅 영역 ===== */
+  .chat-section {
+    flex: 1;
+    max-width: 760px;
+  }
+  
+  /* 상단 검색 */
+  .top-bar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  
+  .top-bar input {
+    width: 420px;
+    padding: 12px 18px;
+    border-radius: 24px;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+  }
+  
+  /* 채팅 리스트 */
+  .chat-list {
+    background: #fff;
+    border-radius: 12px;
+  }
+  
+  .chat-item {
+    padding: 20px 16px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+  }
+  
+  .chat-item:last-child {
+    border-bottom: none;
+  }
+  
+  .chat-item:hover {
+    background: #f9f9f9;
+  }
+  
+  .chat-item h4 {
+    margin: 6px 0;
+    font-size: 16px;
+  }
+  
+  .chat-item .meta {
+    font-size: 13px;
+    color: #888;
+  }
+  
+  /* 태그 */
+  .tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+  
+  .tag.in_progress { background: #e7f4f2; color: #288279; }
+  .tag.adopt { background: #eef1ff; color: #5a6bff; }
+  .tag.reject { background: #fdecec; color: #d9534f; }
+  .tag.end { background: #f1f1f1; color: #777; }
+  
+  /* ===== 필터 박스 ===== */
+  .filter-box {
+    width: 260px;
+    border: 1px solid #7cc8be;
+    border-radius: 16px;
+    padding: 20px;
+    background: #fff;
+    flex-shrink: 0;
+  }
+  
+  .filter-box h4 {
+    margin-bottom: 16px;
+  }
+  
+  .filter-group {
+    margin-bottom: 20px;
+  }
+  
+  .filter-group span {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  
+  .filter-group select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+  }
+  
+  .filter-group ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .filter-group li {
+    padding: 6px 0;
+    cursor: pointer;
+  }
+  
+  .filter-group li:hover {
+    color: #288279;
+    font-weight: 500;
+  }
+  
+  /* ===== 페이지네이션 ===== */
+  .pagination {
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  }
+  

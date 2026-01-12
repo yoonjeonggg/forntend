@@ -121,12 +121,12 @@ export default function Students() {
                       key={student.userId}
                       className="clickable-row"
                       onClick={() =>
-                        navigate(`/admin/users/${student.userId}/edit`, {
-                      state: { student },
-                      })
+                        navigate(
+                          `/admin/users/${student.userId}/edit`,
+                          { state: { student } }
+                        )
                       }
-                      >
-
+                    >
                       <td>{index + 1}</td>
                       <td>{student.studentNum}</td>
                       <td>{student.name}</td>
