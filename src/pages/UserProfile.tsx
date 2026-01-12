@@ -40,6 +40,11 @@ export default function UserProfile() {
         return;
       }
 
+      if (localStorage.getItem('role') === 'ADMIN') {
+        navigate('/admin/users', { replace: true });
+        return;
+      }      
+
       setLoadingProfile(true);
       try {
         // API에서 사용자 정보 가져오기 (현재 로그인한 사용자)

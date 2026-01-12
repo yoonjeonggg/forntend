@@ -50,12 +50,19 @@ export default function Header(props: HeaderProps) {
             className="login-button" 
             type="button"
             onClick={() => {
-              if (isLoggedIn && userName) {
-                navigate('/profile');
-              } else {
+              if (!isLoggedIn) {
                 navigate('/login');
+                return;
+              }
+            
+              if (isAdmin) {
+                navigate('/admin/users');
+              } else {
+                navigate('/profile');
               }
             }}
+            
+            
           >
             {isLoggedIn && userName ? (
               <>

@@ -8,6 +8,7 @@ import './Students.css';
 export default function Students() {
   const navigate = useNavigate();
   const { isLoggedIn, isAdmin } = useAuth();
+
   const [students, setStudents] = useState<StudentInfo[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<StudentInfo[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,17 +31,21 @@ export default function Students() {
   }, [isLoggedIn, isAdmin, navigate]);
 
   useEffect(() => {
-    if (searchQuery.trim() === '') {
+    if (!searchQuery.trim()) {
       setFilteredStudents(students);
-    } else {
-      const query = searchQuery.toLowerCase();
-      const filtered = students.filter(student => 
-        student.name.toLowerCase().includes(query) ||
-        student.email.toLowerCase().includes(query) ||
-        student.userId.toString().includes(query)
-      );
-      setFilteredStudents(filtered);
+      return;
     }
+
+    const q = searchQuery.toLowerCase();
+
+    setFilteredStudents(
+      students.filter(
+        (student) =>
+          student.name.toLowerCase().includes(q) ||
+          student.email.toLowerCase().includes(q) ||
+          student.studentNum.toString().includes(q)
+      )
+    );
   }, [searchQuery, students]);
 
   const loadStudents = async () => {
@@ -59,7 +64,6 @@ export default function Students() {
 
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
-    // 검색은 useEffect에서 자동으로 처리됨
   };
 
   if (!isLoggedIn || !isAdmin) {
@@ -69,6 +73,7 @@ export default function Students() {
   return (
     <div className="students-container">
       <Header />
+
       <div className="students-content">
         <div className="students-header">
           <h1 className="students-title">학생 정보</h1>
@@ -79,13 +84,10 @@ export default function Students() {
             <input
               type="text"
               className="search-input"
-              placeholder="검색 입력하기"
+              placeholder="학번 / 이름 / 이메일 검색"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <svg className="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
           </form>
         </div>
 
@@ -108,14 +110,25 @@ export default function Students() {
                 {filteredStudents.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="empty-cell">
-                      {searchQuery ? '검색 결과가 없습니다.' : '학생 정보가 없습니다.'}
+                      {searchQuery
+                        ? '검색 결과가 없습니다.'
+                        : '학생 정보가 없습니다.'}
                     </td>
                   </tr>
                 ) : (
                   filteredStudents.map((student, index) => (
-                    <tr key={student.userId}>
+                    <tr
+                      key={student.userId}
+                      className="clickable-row"
+                      onClick={() =>
+                        navigate(`/admin/users/${student.userId}/edit`, {
+                      state: { student },
+                      })
+                      }
+                      >
+
                       <td>{index + 1}</td>
-                      <td>{student.userId}</td>
+                      <td>{student.studentNum}</td>
                       <td>{student.name}</td>
                       <td>{student.email}</td>
                     </tr>

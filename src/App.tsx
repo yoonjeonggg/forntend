@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import UserProfile from './pages/UserProfile';
 import ChangePassword from './pages/ChangePassword';
 import Students from './pages/Students';
+import AdminUserEdit from './pages/admin/AdminUserEdit';
 
 function App() {
   return (
@@ -18,7 +19,11 @@ function App() {
         <Route path="/chats/:chatRoomId" element={<ChatDetail />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/change-password" element={<ChangePassword />} />
+
+        {/* 관리자 */}
         <Route path="/students" element={<Students />} />
+        <Route path="/admin/users/:userId/edit" element={<AdminUserEdit />} />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
