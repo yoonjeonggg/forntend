@@ -1,9 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client'; // SockJS 임포트
+import SockJS from 'sockjs-client';
 import { Header } from '../../components';
 import ChatCreate from '../../components/ChatCreate';
+import ChatClose from '../../components/ChatClose'; 
+import { useAuth } from '../../contexts/AuthContext';
 import './styles/MyChat.css';
+// 1. SurveyModel로 임포트 파일명 수정
+import SurveyModel from '../../components/SurveyModel';
+
+// 2. 파일 내부에 정의되어 있던 중복 SurveyModal 컴포넌트 삭제 (요청하신 부분)
 
 interface ChatRoom {
   chatRoomId: number;
@@ -31,13 +37,18 @@ interface Message {
 }
 
 const MyChat = () => {
+  const { userId: myUserId } = useAuth();
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isChatCloseModalOpen, setIsChatCloseModalOpen] = useState(false);
+  const [isSurveyModalOpen, setIsSurveyModalOpen] = useState(false);
+
   const [chats, setChats] = useState<ChatRoom[]>([]);
   const [selectedChatId, setSelectedChatId] = useState<number | null>(null);
   const [chatDetail, setChatDetail] = useState<ChatDetail | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isMsgLoading, setIsMsgLoading] = useState(false);
 
@@ -60,95 +71,50 @@ const MyChat = () => {
   }, [selectedChatId]);
 
   const connectWebSocket = (roomId: number) => {
-    console.log(`[WebSocket] SockJS 연결 시도 중... (Room ID: ${roomId})`);
-    
-    // 백엔드에 .withSockJS()가 설정되어 있으므로 webSocketFactory를 사용해야 합니다.
     stompClient.current = new Client({
       webSocketFactory: () => new SockJS('http://localhost:8081/ws-chat'),
       connectHeaders: {
         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
       },
-      debug: (str) => {
-        console.log('[STOMP Debug]', str);
-      },
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-
-      onConnect: (frame) => {
-        console.log('[WebSocket] 연결 성공! 상태:', frame.headers['user-name'] || 'Connected');
-        
-        const subscriptionPath = `/sub/chat/room/${roomId}`;
-        console.log(`[WebSocket] 구독 시작: ${subscriptionPath}`);
-        
+      onConnect: () => {
         stompClient.current?.subscribe(
-          subscriptionPath, 
+          `/sub/chat/room/${roomId}`,
           (frame) => {
             try {
               const newMessage = JSON.parse(frame.body);
-              console.log('[WebSocket] 새 메시지 수신:', newMessage);
               setMessages((prev) => [...prev, newMessage]);
             } catch (error) {
               console.error('[WebSocket] 메시지 파싱 에러:', error);
             }
           },
-          {
-            // 구독 시에도 토큰을 전송 (서버 인터셉터에서 권한 확인 시 필요)
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-          }
+          { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
         );
       },
-
-      onStompError: (frame) => {
-        console.error('[WebSocket] STOMP 프로토콜 에러 발생');
-        console.error('에러 메시지:', frame.headers['message']);
-        console.error('상세 내용:', frame.body);
-      },
-
-      onWebSocketClose: (event) => {
-        console.warn('[WebSocket] 연결 닫힘 (Close Event):', event);
-      },
-
-      onDisconnect: () => {
-        console.log('[WebSocket] 연결 해제 완료 (Disconnected)');
-      }
     });
-
     stompClient.current.activate();
   };
 
   const disconnectWebSocket = () => {
     if (stompClient.current) {
-      console.log('[WebSocket] 수동 연결 해제 시도');
       stompClient.current.deactivate();
     }
   };
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim()) return;
-
-    if (!stompClient.current?.connected) {
-      console.error('[Message] 전송 실패: WebSocket 미연결');
-      alert('연결이 원활하지 않습니다. 잠시 후 다시 시도해주세요.');
-      return;
-    }
+    if (!inputValue.trim() || !stompClient.current?.connected) return;
 
     const request = {
       roomId: selectedChatId,
       message: inputValue.trim(),
     };
 
-    try {
-      stompClient.current.publish({
-        destination: '/pub/chat/send',
-        body: JSON.stringify(request),
-        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
-      });
-      setInputValue('');
-    } catch (err) {
-      console.error('[Message] 전송 에러:', err);
-    }
+    stompClient.current.publish({
+      destination: '/pub/chat/send',
+      body: JSON.stringify(request),
+      headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+    });
+    setInputValue('');
   };
 
   const fetchMyChats = async () => {
@@ -204,9 +170,57 @@ const MyChat = () => {
     fetchMessages(roomId);
   };
 
+  // 종료 버튼 클릭 핸들러
+  const handleExitClick = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation(); 
+    }
+
+    if (!chatDetail) {
+      console.error("채팅 상세 정보가 로드되지 않았습니다.");
+      return;
+    }
+
+    if (chatDetail.tag === 'IN_PROGRESS') {
+      setIsChatCloseModalOpen(true);
+    } else {
+      setIsSurveyModalOpen(true);
+    }
+  };
+
+  // 채팅 설정 API (SurveyModel 확인 클릭 시)
+  const handleSurveyConfirm = async (option: { isPublic: boolean; isAnonymous: boolean }) => {
+    if (!selectedChatId) return;
+    try {
+      const response = await fetch('http://localhost:8081/api/chats/setting', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+        body: JSON.stringify({
+          chatRoomId: selectedChatId,
+          isAnonymous: option.isAnonymous,
+          isPublic: option.isPublic,
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        alert('설정이 저장되었습니다.');
+        setIsSurveyModalOpen(false);
+        fetchChatDetail(selectedChatId);
+      }
+    } catch (err) {
+      console.error('설정 저장 에러:', err);
+    }
+  };
+
   const getTagInfo = (tag: string) => {
     switch (tag) {
       case 'ADOPT': return { text: '채택됨', className: 'status-adopted' };
+      case 'END': return { text: '종료됨', className: 'status-end' };
       default: return { text: '진행 중', className: 'status-ing' };
     }
   };
@@ -248,45 +262,65 @@ const MyChat = () => {
           {selectedChatId ? (
             <div className="chat-window">
               <header className="chat-header">
-                <div className="header-top">
-                  <h3 className="header-title">{chatDetail?.title}</h3>
+                <div className="header-left">
+                  <div className="header-top">
+                    <h3 className="header-title">{chatDetail?.title}</h3>
+                    {chatDetail && (
+                      <span className={`chat-status-badge ${getTagInfo(chatDetail.tag).className}`}>
+                        {getTagInfo(chatDetail.tag).text}
+                      </span>
+                    )}
+                  </div>
                   {chatDetail && (
-                    <span className={`chat-status-badge ${getTagInfo(chatDetail.tag).className}`}>
-                      {getTagInfo(chatDetail.tag).text}
-                    </span>
+                    <div className="header-bottom">
+                      <span className="author-info">
+                        {chatDetail.author} - {chatDetail.studentNum}
+                      </span>
+                      <span className="date-info">
+                        {new Date(chatDetail.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
                   )}
                 </div>
-                {chatDetail && (
-                  <div className="header-bottom">
-                    <span className="author-info">
-                      {chatDetail.author} - {chatDetail.studentNum}
-                    </span>
-                    <span className="date-info">
-                      {new Date(chatDetail.createdAt).toLocaleDateString().replace(/\.$/, '')}
-                    </span>
-                  </div>
-                )}
+                <div className="header-right">
+                  <button className="chat-exit-btn" onClick={handleExitClick}>
+                    종료
+                  </button>
+                </div>
               </header>
               
-              <div className="message-list" ref={scrollRef}>
-                {isMsgLoading ? (
-                  <p className="msg-status">메시지를 불러오는 중...</p>
-                ) : messages.length > 0 ? (
-                  messages.map((msg, idx) => (
-                    <div key={idx} className={`message-item ${msg.deleted ? 'deleted' : ''}`}>
-                      <div className="msg-bubble">
-                        <span className="sender-name">{msg.senderName}</span>
-                        <p className="msg-text">{msg.deleted ? '삭제된 메시지입니다.' : msg.message}</p>
-                        <span className="msg-date">
-                          {new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="msg-status">대화 내용이 없습니다.</p>
-                )}
-              </div>
+             <div className="message-list" ref={scrollRef}>
+  {isMsgLoading ? (
+    <p className="msg-status">메시지를 불러오는 중...</p>
+  ) : messages.length > 0 ? (
+    messages.map((msg, idx) => {
+      // 1. 내 메시지인지 확인 (현재 로그인한 유저 ID와 메시지 발신자 ID 비교)
+      const isMine = msg.sender === myUserId;
+
+      return (
+        <div 
+          key={idx} 
+          className={`message-wrapper ${isMine ? 'mine' : 'others'} ${msg.deleted ? 'deleted' : ''}`}
+        >
+          <div className="msg-bubble">
+            {/* 2. 내가 아닐 때만 상대방 이름 표시 */}
+            {!isMine && <span className="sender-name">{msg.senderName}</span>}
+            
+            <p className="msg-text">
+              {msg.deleted ? '삭제된 메시지입니다.' : msg.message}
+            </p>
+            
+            <span className="msg-date">
+              {new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+            </span>
+          </div>
+        </div>
+      );
+    })
+  ) : (
+    <p className="msg-status">대화 내용이 없습니다.</p>
+  )}
+</div>
 
               <div className="chat-input-wrapper">
                 <form className="chat-input-container" onSubmit={handleSendMessage}>
@@ -311,14 +345,34 @@ const MyChat = () => {
               <p>왼쪽 목록에서 채팅방을 선택해 주세요.</p>
             </div>
           )}
-
-          <ChatCreate 
-            isOpen={isModalOpen} 
-            onClose={() => setIsModalOpen(false)} 
-            onChatCreated={() => fetchMyChats()}
-          />
         </main>
       </div>
+
+      {/* 모달 관리 */}
+      <ChatCreate 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onChatCreated={() => fetchMyChats()}
+      />
+
+      <ChatClose 
+        isOpen={isChatCloseModalOpen}
+        onClose={() => setIsChatCloseModalOpen(false)}
+        chatRoomId={selectedChatId}
+        onSuccess={() => {
+          setIsChatCloseModalOpen(false);
+          fetchChatDetail(selectedChatId!); 
+          setIsSurveyModalOpen(true); 
+        }}
+      />
+
+      {isSurveyModalOpen && (
+        // 3. 임포트한 SurveyModel 컴포넌트 사용
+        <SurveyModel 
+          onCancel={() => setIsSurveyModalOpen(false)}
+          onConfirm={handleSurveyConfirm}
+        />
+      )}
     </div>
   );
 };

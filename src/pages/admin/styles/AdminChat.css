@@ -1,0 +1,143 @@
+.admin-chat-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f4f7f9; /* 배경색 차별화 */
+}
+
+.admin-chat-container {
+  display: flex;
+  flex: 1;
+  justify-content: center; /* 가로 중앙 정렬 */
+  overflow: hidden;
+}
+
+.admin-chat-content {
+  width: 100%;
+  max-width: 800px; /* 화면이 너무 넓어지지 않도록 제한 */
+  height: 100%;
+  background: white;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-chat-window {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.admin-chat-header {
+  padding: 20px 30px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-header-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.admin-badge {
+  background: #ff4d4f;
+  color: white;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* 메시지 목록 */
+.admin-message-list {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: #fdfdfd;
+}
+
+.admin-message-wrapper {
+  display: flex;
+  width: 100%;
+}
+
+.admin-message-wrapper.mine { justify-content: flex-end; }
+.admin-message-wrapper.others { justify-content: flex-start; }
+
+.admin-msg-bubble {
+  max-width: 70%;
+  padding: 12px 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-message-wrapper.mine .admin-msg-bubble {
+  background-color: #1890ff;
+  color: white;
+  border-radius: 15px 15px 0 15px;
+}
+
+.admin-message-wrapper.others .admin-msg-bubble {
+  background-color: #e9e9eb;
+  color: #333;
+  border-radius: 15px 15px 15px 0;
+}
+
+.admin-sender-name {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  color: #888;
+}
+
+.admin-msg-date {
+  font-size: 10px;
+  margin-top: 5px;
+  align-self: flex-end;
+  opacity: 0.7;
+}
+
+/* 입력창 */
+.admin-chat-input-wrapper {
+  padding: 20px 30px;
+  border-top: 1px solid #eee;
+}
+
+.admin-chat-input-container {
+  display: flex;
+  align-items: center;
+  background-color: #f0f2f5;
+  padding: 10px 20px;
+  border-radius: 25px;
+  gap: 10px;
+}
+
+.admin-chat-input-container input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 15px;
+}
+
+.admin-send-btn {
+  background: none;
+  border: none;
+  color: #1890ff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.admin-msg-status {
+  text-align: center;
+  color: #999;
+  margin-top: 20px;
+}

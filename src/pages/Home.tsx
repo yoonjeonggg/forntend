@@ -146,7 +146,7 @@ export default function Home() {
               cursor: 'pointer',
               marginTop: 12,
             }}
-            onClick={() => navigate('/chat')}
+            onClick={() => isAdmin ? navigate('/admin-chatList') : navigate('/chat')}
           >
             {isAdmin ? '조회하기' : '채팅방 생성하기'} →
           </button>
