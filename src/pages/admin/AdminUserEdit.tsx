@@ -19,17 +19,7 @@ export default function AdminUserEdit() {
   const { isLoggedIn, isAdmin } = useAuth();
 
   const state = location.state as { student?: UserInfo } | null;
-  const [user] = useState<UserInfo | null>(state?.student ?? null);
-
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  // ✅ 버튼 활성화 조건
-  const isFormValid =
-    newPassword.length > 0 &&
-    confirmPassword.length > 0 &&
-    newPassword === confirmPassword;
+  const initialUser = state?.student;
 
   if (!isLoggedIn || !isAdmin) {
     alert('관리자만 접근할 수 있습니다.');
@@ -37,11 +27,35 @@ export default function AdminUserEdit() {
     return null;
   }
 
-  if (!user || !userId) {
+  if (!initialUser || !userId) {
     alert('학생 정보가 없습니다. 다시 선택해주세요.');
     navigate('/students');
     return null;
   }
+
+  // 🔹 현재 입력값
+  const [studentNum, setStudentNum] = useState(
+    initialUser.studentNum.toString()
+  );
+  const [name, setName] = useState(initialUser.name);
+  const [email, setEmail] = useState(initialUser.email);
+
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // 🔹 변경 여부 판단
+  const isInfoChanged =
+    studentNum !== initialUser.studentNum.toString() ||
+    name !== initialUser.name ||
+    email !== initialUser.email;
+
+  const isPasswordChanged =
+    newPassword.length > 0 &&
+    confirmPassword.length > 0 &&
+    newPassword === confirmPassword;
+
+  const isFormValid = isInfoChanged || isPasswordChanged;
 
   const handleSubmit = async () => {
     if (!isFormValid) return;
@@ -50,16 +64,16 @@ export default function AdminUserEdit() {
       setLoading(true);
 
       await updateAdminUser(Number(userId), {
-        email: user.email,
-        name: user.name,
-        studentNum: user.studentNum,
-        newPassword,
+        studentNum: Number(studentNum),
+        name,
+        email,
+        ...(isPasswordChanged && { newPassword }),
       });
 
-      alert('비밀번호가 변경되었습니다.');
+      alert('회원 정보가 수정되었습니다.');
       navigate('/students');
     } catch (err: any) {
-      alert(err.message || '비밀번호 변경 실패');
+      alert(err.message || '회원 정보 수정 실패');
     } finally {
       setLoading(false);
     }
@@ -73,19 +87,33 @@ export default function AdminUserEdit() {
         <h1 className="admin-user-edit-title">회원 정보 수정</h1>
 
         <div className="edit-card">
-          <div className="info-row">
+          <div className="input-row">
             <label>학번</label>
-            <span>{user.studentNum}</span>
+            <input
+              type="text"
+              value={studentNum}
+              onChange={(e) =>
+                setStudentNum(e.target.value.replace(/[^0-9]/g, ''))
+              }
+            />
           </div>
 
-          <div className="info-row">
+          <div className="input-row">
             <label>이름</label>
-            <span>{user.name}</span>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </div>
 
-          <div className="info-row">
+          <div className="input-row">
             <label>이메일</label>
-            <span>{user.email}</span>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
 
           <div className="divider" />
