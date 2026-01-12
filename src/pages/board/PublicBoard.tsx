@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Header from '../../components/header';
 import Tag from '../../components/Tag';
 import FilterDropdown from '../../components/FilterDropdown';
@@ -104,7 +105,9 @@ export default function PublicBoard() {
                     {item.best && <Tag tag="" isBest={true} label="베스트 글" />}
                     <Tag tag={item.tag} />
                   </div>
-                  <h3 className="board-title">{item.title}</h3>
+                  <Link to={`/chats/${item.chatRoomId}`} className="board-title-link">
+                    <h3 className="board-title">{item.title}</h3>
+                  </Link>
                   <div className="board-meta">
                     <span>{item.author}</span>
                     <span>{(() => {
