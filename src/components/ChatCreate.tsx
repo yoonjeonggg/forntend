@@ -33,6 +33,7 @@ const ChatCreate = ({ isOpen, onClose, onChatCreated }: ChatCreateProps) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
         body: JSON.stringify({
           title: title.trim(),
