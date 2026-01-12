@@ -1,30 +1,31 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-import Home from './pages/Home';
+import MyChat from './pages/chat/MyChat';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Login, Signup } from './pages/auth';
 import { PublicBoard } from './pages/board';
+import { ChatDetail } from './pages/chat';
+import Home from './pages/Home';
 import UserProfile from './pages/UserProfile';
 import ChangePassword from './pages/ChangePassword';
+import Students from './pages/Students';
+import SurveyModal from './components/SurveyModel';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* 홈 */}
-        <Route path="/" element={<Home />} />
-
-        {/* 인증 */}
+      <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Signup />} />
-
-        {/* 게시판 */}
         <Route path="/boards/public" element={<PublicBoard />} />
-
-        {/* 마이페이지 */}
+        <Route path="/chats/:chatRoomId" element={<ChatDetail />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/students" element={<Students />} />
         <Route path="*" element={<Navigate to="/" replace />} />
         <Route path='/chat-setting' element={<SurveyModal />} />
+        <Route path="/my-chat" element={<MyChat />} />
+      
       </Routes>
     </BrowserRouter>
   );
