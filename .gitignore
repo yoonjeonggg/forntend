@@ -46,3 +46,6 @@ coverage
 .cache
 .parcel-cache
 .turbo
+
+# Explicitly track TypeScript config
+!tsconfig.app.json
