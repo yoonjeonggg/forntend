@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/header';
 import { useAuth } from '../contexts/AuthContext';
@@ -10,13 +9,13 @@ export default function Home() {
   const navigate = useNavigate();
   const { isLoggedIn, isAdmin, userName } = useAuth();
 
-  // 로그인 필요 알림
+  // 사용자/관리자 뷰 공통 함수
   const showLoginGuard = () => {
     alert('로그인이 필요한 서비스입니다.');
     navigate('/login');
   };
 
-  // 🔹 비로그인 상태
+  // 비로그인 상태
   if (!isLoggedIn) {
     return (
       <div style={{ minHeight: '100vh', background: '#fafafa' }}>
@@ -48,11 +47,7 @@ export default function Home() {
             <div style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12 }}>
               1:1 채팅 문의
             </div>
-            <img
-              src={characterImg}
-              alt="상담 캐릭터"
-              style={{ width: 120, marginBottom: 24 }}
-            />
+            <img src={characterImg} alt="상담 캐릭터" style={{ width: 120, marginBottom: 24 }} />
             <button
               style={{
                 color: '#288279',
@@ -65,7 +60,7 @@ export default function Home() {
               }}
               onClick={showLoginGuard}
             >
-              채팅방 생성하기 &rarr;
+              채팅방 생성하기 →
             </button>
           </div>
 
@@ -87,11 +82,7 @@ export default function Home() {
             <div style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12 }}>
               게시판
             </div>
-            <img
-              src={boardImg}
-              alt="게시판 이미지"
-              style={{ width: 120, marginBottom: 24 }}
-            />
+            <img src={boardImg} alt="게시판 이미지" style={{ width: 120, marginBottom: 24 }} />
             <button
               style={{
                 color: '#288279',
@@ -104,7 +95,7 @@ export default function Home() {
               }}
               onClick={showLoginGuard}
             >
-              게시판 둘러보기 &rarr;
+              게시판 둘러보기 →
             </button>
           </div>
         </div>
@@ -112,7 +103,7 @@ export default function Home() {
     );
   }
 
-  // 🔹 로그인 상태
+  // 로그인 상태
   return (
     <div style={{ minHeight: '100vh', background: '#fafafa' }}>
       <Header isLoggedIn={true} isAdmin={isAdmin} userName={userName} />
@@ -126,7 +117,7 @@ export default function Home() {
           flexWrap: 'wrap',
         }}
       >
-        {/* 1:1 채팅 / 문의 */}
+        {/* 1:1 문의 */}
         <div
           style={{
             border: '1px solid #eee',
@@ -144,11 +135,7 @@ export default function Home() {
           <div style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12 }}>
             {isAdmin ? '1:1 문의' : '1:1 채팅 문의'}
           </div>
-          <img
-            src={characterImg}
-            alt="상담 캐릭터"
-            style={{ width: 120, marginBottom: 24 }}
-          />
+          <img src={characterImg} alt="상담 캐릭터" style={{ width: 120, marginBottom: 24 }} />
           <button
             style={{
               color: '#288279',
@@ -159,9 +146,9 @@ export default function Home() {
               cursor: 'pointer',
               marginTop: 12,
             }}
-            onClick={() => navigate('/my-chat')}
+            onClick={() => navigate('/chat')}
           >
-            {isAdmin ? '조회하기' : '채팅방 생성하기'} &rarr;
+            {isAdmin ? '조회하기' : '채팅방 생성하기'} →
           </button>
         </div>
 
@@ -183,11 +170,7 @@ export default function Home() {
           <div style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12 }}>
             게시판
           </div>
-          <img
-            src={boardImg}
-            alt="게시판 이미지"
-            style={{ width: 120, marginBottom: 24 }}
-          />
+          <img src={boardImg} alt="게시판 이미지" style={{ width: 120, marginBottom: 24 }} />
           <button
             style={{
               color: '#288279',
@@ -198,13 +181,15 @@ export default function Home() {
               cursor: 'pointer',
               marginTop: 12,
             }}
-            onClick={() => navigate('/boards/public')}
+            onClick={() =>
+              isAdmin ? navigate('/admin/chats') : navigate('/boards/public')
+            }
           >
-            {isAdmin ? '조회하기' : '게시판 둘러보기'} &rarr;
+            {isAdmin ? '조회하기' : '게시판 둘러보기'} →
           </button>
         </div>
 
-        {/* 관리자 전용 - 학생 정보 */}
+        {/* 관리자만: 학생 정보 */}
         {isAdmin && (
           <div
             style={{
@@ -223,11 +208,7 @@ export default function Home() {
             <div style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12 }}>
               학생 정보
             </div>
-            <img
-              src={userImg}
-              alt="학생정보"
-              style={{ width: 80, marginBottom: 34 }}
-            />
+            <img src={userImg} alt="학생정보" style={{ width: 80, marginBottom: 34 }} />
             <button
               style={{
                 color: '#288279',
@@ -240,7 +221,7 @@ export default function Home() {
               }}
               onClick={() => navigate('/students')}
             >
-              조회하기 &rarr;
+              조회하기 →
             </button>
           </div>
         )}

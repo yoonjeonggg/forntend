@@ -1,230 +1,173 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../../components/header';
-import { useAuth } from '../../contexts/AuthContext';
-import characterImg from '../assets/images/character.png';
-import boardImg from '../assets/images/board.png';
-import userImg from '../assets/images/user.png';
+import { getAdminChats } from '../../services/admin';
+import './AdminChatList.css';
 
-export default function Home() {
+type ChatTag = 'IN_PROGRESS' | 'ADOPT' | 'REJECT' | 'END';
+type DateFilter = 'RECENT' | 'OLDEST';
+
+interface AdminChat {
+  chatRoomId: number;
+  title: string;
+  tag: ChatTag;
+  author: string;
+  studentNum: number;
+  createdAt: string;
+}
+
+export default function AdminChatList() {
   const navigate = useNavigate();
-  const { isLoggedIn, isAdmin, userName } = useAuth();
 
-  // 사용자/관리자 뷰 공통 함수
-  const showLoginGuard = () => {
-    alert('로그인이 필요한 서비스입니다.');
-    navigate('/login');
+  /* =========================
+     상태
+  ========================= */
+  const [chatTag, setChatTag] = useState<ChatTag | undefined>();
+  const [dateFilter, setDateFilter] = useState<DateFilter>('RECENT');
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+
+  const [chats, setChats] = useState<AdminChat[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  /* =========================
+     데이터 조회
+  ========================= */
+  const fetchChats = async () => {
+    setLoading(true);
+    try {
+      const data = await getAdminChats({
+        chatTags: chatTag,
+        dateFilter,
+        page,
+        size,
+      });
+
+      setChats(data.content);
+      setTotalPages(data.totalPages);
+    } catch (e: any) {
+      alert(e.message || '채팅 목록을 불러오지 못했습니다.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // 비로그인 상태
-  if (!isLoggedIn) {
-    return (
-      <div style={{ minHeight: '100vh', background: '#fafafa' }}>
-        <Header />
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '90vh',
-            gap: 60,
-          }}
-        >
-          {/* 1:1 채팅 문의 */}
-          <div
-            style={{
-              border: '1px solid #eee',
-              borderRadius: 24,
-              background: '#fff',
-              width: 360,
-              height: 400,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 2px 8px #0001',
-            }}
-          >
-            <div style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12 }}>
-              1:1 채팅 문의
-            </div>
-            <img src={characterImg} alt="상담 캐릭터" style={{ width: 120, marginBottom: 24 }} />
-            <button
-              style={{
-                color: '#288279',
-                border: 'none',
-                background: 'none',
-                fontSize: 17,
-                fontWeight: 500,
-                cursor: 'pointer',
-                marginTop: 12,
-              }}
-              onClick={showLoginGuard}
-            >
-              채팅방 생성하기 →
-            </button>
-          </div>
+  useEffect(() => {
+    fetchChats();
+  }, [chatTag, dateFilter, page]);
 
-          {/* 게시판 */}
-          <div
-            style={{
-              border: '1px solid #eee',
-              borderRadius: 24,
-              background: '#fff',
-              width: 360,
-              height: 400,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 2px 8px #0001',
-            }}
-          >
-            <div style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12 }}>
-              게시판
-            </div>
-            <img src={boardImg} alt="게시판 이미지" style={{ width: 120, marginBottom: 24 }} />
-            <button
-              style={{
-                color: '#288279',
-                border: 'none',
-                background: 'none',
-                fontSize: 17,
-                fontWeight: 500,
-                cursor: 'pointer',
-                marginTop: 12,
-              }}
-              onClick={showLoginGuard}
-            >
-              게시판 둘러보기 →
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  /* =========================
+     UI 헬퍼
+  ========================= */
+  const renderTagText = (tag: ChatTag) => {
+    switch (tag) {
+      case 'IN_PROGRESS':
+        return '진행중';
+      case 'ADOPT':
+        return '채택';
+      case 'REJECT':
+        return '반려';
+      case 'END':
+        return '종료';
+    }
+  };
 
-  // 로그인 상태
+  /* =========================
+     렌더링
+  ========================= */
   return (
-    <div style={{ minHeight: '100vh', background: '#fafafa' }}>
-      <Header isLoggedIn={true} isAdmin={isAdmin} userName={userName} />
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '90vh',
-          gap: 60,
-          flexWrap: 'wrap',
-        }}
-      >
-        {/* 1:1 문의 */}
-        <div
-          style={{
-            border: '1px solid #eee',
-            borderRadius: 24,
-            background: '#fff',
-            width: 360,
-            height: 400,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 2px 8px #0001',
-          }}
-        >
-          <div style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12 }}>
-            {isAdmin ? '1:1 문의' : '1:1 채팅 문의'}
-          </div>
-          <img src={characterImg} alt="상담 캐릭터" style={{ width: 120, marginBottom: 24 }} />
-          <button
-            style={{
-              color: '#288279',
-              border: 'none',
-              background: 'none',
-              fontSize: 17,
-              fontWeight: 500,
-              cursor: 'pointer',
-              marginTop: 12,
-            }}
-            onClick={() => navigate('/chat')}
-          >
-            {isAdmin ? '조회하기' : '채팅방 생성하기'} →
-          </button>
+    <div className="admin-chat-list">
+      {/* 상단 검색 영역 (추후 확장용) */}
+      <div className="top-bar">
+        <input
+          type="text"
+          placeholder="채팅 제목 검색"
+          disabled
+        />
+      </div>
+
+      <div className="content">
+        {/* 채팅 목록 */}
+        <div className="chat-list">
+          {loading && <p>로딩 중...</p>}
+
+          {!loading && chats.length === 0 && (
+            <p>채팅 내역이 없습니다.</p>
+          )}
+
+          {!loading &&
+            chats.map((chat) => (
+              <div
+                key={chat.chatRoomId}
+                className="chat-item"
+                onClick={() =>
+                  navigate(`/admin/chats/${chat.chatRoomId}`)
+                }
+              >
+                <span className={`tag ${chat.tag.toLowerCase()}`}>
+                  {renderTagText(chat.tag)}
+                </span>
+
+                <h4>{chat.title}</h4>
+
+                <p className="meta">
+                  {chat.author} · {chat.studentNum} ·{' '}
+                  {new Date(chat.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            ))}
         </div>
 
-        {/* 게시판 */}
-        <div
-          style={{
-            border: '1px solid #eee',
-            borderRadius: 24,
-            background: '#fff',
-            width: 360,
-            height: 400,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 2px 8px #0001',
-          }}
-        >
-          <div style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12 }}>
-            게시판
-          </div>
-          <img src={boardImg} alt="게시판 이미지" style={{ width: 120, marginBottom: 24 }} />
-          <button
-            style={{
-              color: '#288279',
-              border: 'none',
-              background: 'none',
-              fontSize: 17,
-              fontWeight: 500,
-              cursor: 'pointer',
-              marginTop: 12,
-            }}
-            onClick={() =>
-              isAdmin ? navigate('/admin/chats') : navigate('/boards/public')
-            }
-          >
-            {isAdmin ? '조회하기' : '게시판 둘러보기'} →
-          </button>
-        </div>
+        {/* 필터 영역 */}
+        <aside className="filter-box">
+          <h4>필터링</h4>
 
-        {/* 관리자만: 학생 정보 */}
-        {isAdmin && (
-          <div
-            style={{
-              border: '1px solid #eee',
-              borderRadius: 24,
-              background: '#fff',
-              width: 360,
-              height: 400,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 2px 8px #0001',
-            }}
-          >
-            <div style={{ fontWeight: 'bold', fontSize: 20, marginBottom: 12 }}>
-              학생 정보
-            </div>
-            <img src={userImg} alt="학생정보" style={{ width: 80, marginBottom: 34 }} />
-            <button
-              style={{
-                color: '#288279',
-                border: 'none',
-                background: 'none',
-                fontSize: 17,
-                fontWeight: 500,
-                cursor: 'pointer',
-                marginTop: 16,
+          <div className="filter-group">
+            <span>날짜</span>
+            <select
+              value={dateFilter}
+              onChange={(e) => {
+                setDateFilter(e.target.value as DateFilter);
+                setPage(0);
               }}
-              onClick={() => navigate('/students')}
             >
-              조회하기 →
-            </button>
+              <option value="RECENT">최신순</option>
+              <option value="OLDEST">오래된순</option>
+            </select>
           </div>
-        )}
+
+          <div className="filter-group">
+            <span>태그</span>
+            <ul>
+              <li onClick={() => setChatTag('IN_PROGRESS')}>진행중</li>
+              <li onClick={() => setChatTag('ADOPT')}>채택</li>
+              <li onClick={() => setChatTag('REJECT')}>반려</li>
+              <li onClick={() => setChatTag('END')}>종료</li>
+              <li onClick={() => setChatTag(undefined)}>전체</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+
+      {/* 페이지네이션 */}
+      <div className="pagination">
+        <button
+          disabled={page === 0}
+          onClick={() => setPage((p) => p - 1)}
+        >
+          이전
+        </button>
+
+        <span>
+          {page + 1} / {totalPages}
+        </span>
+
+        <button
+          disabled={page + 1 >= totalPages}
+          onClick={() => setPage((p) => p + 1)}
+        >
+          다음
+        </button>
       </div>
     </div>
   );
