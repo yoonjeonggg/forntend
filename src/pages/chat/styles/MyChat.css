@@ -266,3 +266,74 @@
 .message-list {
   scroll-behavior: smooth;
 }
+
+/* 메시지 리스트 컨테이너 */
+.message-list {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 12px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* 메시지 래퍼 공통 */
+.message-wrapper {
+  display: flex;
+  width: 100%;
+}
+
+/* --- 내 메시지: 오른쪽 --- */
+.message-wrapper.mine {
+  justify-content: flex-end;
+}
+
+.message-wrapper.mine .msg-bubble {
+  background-color: #007bff;
+  color: #ffffff;
+  border-radius: 12px 12px 0 12px;
+}
+
+.message-wrapper.mine .msg-date {
+  color: #eeeeee;
+}
+
+/* --- 상대방 메시지: 왼쪽 --- */
+.message-wrapper.others {
+  justify-content: flex-start;
+}
+
+.message-wrapper.others .msg-bubble {
+  background-color: #f0f0f0;
+  color: #333333;
+  border-radius: 12px 12px 12px 0;
+}
+
+/* 말풍선 공통 */
+.msg-bubble {
+  max-width: 75%;
+  padding: 10px 14px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.sender-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #666;
+}
+
+.msg-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.msg-date {
+  font-size: 0.7rem;
+  margin-top: 4px;
+  align-self: flex-end;
+  opacity: 0.8;
+}
