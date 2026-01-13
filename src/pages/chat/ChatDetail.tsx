@@ -82,15 +82,19 @@ export default function ChatDetail() {
   
     try {
       const result = await patchChatReaction(Number(chatRoomId), type);
+
       setChatDetail(prev =>
         prev
           ? {
               ...prev,
               likeCnt: result.likeCnt,
               dislikeCnt: result.dislikeCnt,
+              myReaction:
+                prev.myReaction === type ? null : type,
             }
           : prev
       );
+
     } catch (e: any) {
       alert(e.message);
     }
@@ -136,16 +140,20 @@ export default function ChatDetail() {
           })}
         </div>
         <div className="chat-actions">
-          <button
-            className="action-button like-button"
-            onClick={() => handleReaction('LIKE')}
-          >
+        <button
+          className={`action-button like-button ${
+            chatDetail.myReaction === 'LIKE' ? 'active' : ''
+          }`}
+          onClick={() => handleReaction('LIKE')}
+        >
             <span className="action-label">공감해요</span>
             <span className="action-count">{chatDetail.likeCnt}</span>
           </button>
 
           <button
-            className="action-button dislike-button"
+            className={`action-button dislike-button ${
+              chatDetail.myReaction === 'DISLIKE' ? 'active' : ''
+            }`}
             onClick={() => handleReaction('DISLIKE')}
           >
             <span className="action-label">별로예요</span>

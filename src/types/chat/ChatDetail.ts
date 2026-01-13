@@ -10,6 +10,7 @@ export interface ChatDetailResponse {
   chatRoomId: number;
   likeCnt: number;
   dislikeCnt: number;
+  myReaction: "LIKE" | "DISLIKE" | null;
   title: string;
   tag: string;
   items: ChatMessage[];

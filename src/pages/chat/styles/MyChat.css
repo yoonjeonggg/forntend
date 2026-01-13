@@ -14,7 +14,7 @@
 
 /* 2. 사이드바 스타일 */
 .mychat-sidebar {
-  width: 300px;
+  width: 400px; /* 300px에서 400px로 증가 */
   border-right: 1px solid #f0f0f0;
   display: flex;
   flex-direction: column;
@@ -64,13 +64,26 @@
 .chat-item:hover { background-color: #f9f9f9; }
 .chat-item.active { background-color: #e6f7ff; border-left: 4px solid #1890ff; }
 
+.chat-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px; /* 제목과 태그 사이 간격 */
+  min-width: 0; /* flex 아이템이 축소될 수 있도록 */
+}
+
 .chat-item-title {
   font-size: 14px;
   color: #333;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-right: 10px;
+  flex-shrink: 1; /* 제목이 길면 축소 */
+}
+
+/* 태그가 제목 옆에 항상 표시되도록 */
+.chat-item .chat-status-badge {
+  flex-shrink: 0; /* 태그는 축소되지 않음 */
 }
 
 /* 3. 상태 배지 스타일 */
@@ -115,11 +128,38 @@
   align-items: center;
   padding: 15px 25px;
   border-bottom: 1px solid #eee;
+  margin-bottom: 0; /* 헤더 아래 여백 제거 */
 }
 
-.header-top { display: flex; align-items: center; gap: 12px; }
-.header-title { margin: 0; font-size: 22px; font-weight: 600; color: #333; }
-.header-bottom { display: flex; align-items: center; gap: 16px; font-size: 14px; color: #999; margin-top: 4px; }
+.header-left {
+  flex: 1;
+}
+
+.header-right {
+  flex-shrink: 0;
+}
+
+.header-top { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+}
+
+.header-title { 
+  margin: 0; 
+  font-size: 22px; 
+  font-weight: 600; 
+  color: #333; 
+}
+
+.header-bottom { 
+  display: flex; 
+  align-items: center; 
+  gap: 16px; 
+  font-size: 14px; 
+  color: #999; 
+  margin-top: 4px; 
+}
 
 .chat-exit-btn {
   background-color: #f8f9fa;
@@ -131,52 +171,80 @@
   font-size: 14px;
 }
 
-.chat-exit-btn:hover { background-color: #ec8e8e; color: white; border-color: #ec8e8e; }
+.chat-exit-btn:hover { 
+  background-color: #ec8e8e; 
+  color: white; 
+  border-color: #ec8e8e; 
+}
 
-/* 6. 메시지 목록 (정렬의 핵심) */
-/* 6. 메시지 목록 영역 */
+/* 6. 메시지 목록 */
 .message-list {
   flex: 1;
-  padding: 30px 40px; /* 상하 30px, 좌우 40px 여백으로 이미지 느낌 재현 */
+  padding: 0; /* 상단 여백 제거 */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 20px; /* 말풍선 사이의 간격 */
+  gap: 24px; /* 16px에서 24px로 증가 */
   background-color: #f5f7f9;
 }
 
-/* 메시지 래퍼: 가로 전체를 차지하며 정렬의 기준이 됨 */
+/* 메시지 래퍼: 전체 너비를 쓰고 내부 아이템을 정렬함 */
 .message-wrapper {
   display: flex;
   width: 100%;
   flex-direction: column;
+  padding: 0 40px; /* 각 메시지에 좌우 여백 적용 */
 }
 
-/* --- [내 메시지: 오른쪽 정렬] --- */
+/* 첫 번째 메시지에만 위쪽 여백 */
+.message-wrapper:first-child {
+  padding-top: 20px;
+}
+
+/* 마지막 메시지에만 아래쪽 여백 */
+.message-wrapper:last-child {
+  padding-bottom: 20px;
+}
+
+/* --- 내 메시지: 오른쪽 끝으로 정렬 --- */
 .message-wrapper.mine {
-  align-items: flex-end; /* 모든 요소를 오른쪽 끝으로 밀기 */
+  align-items: flex-end;
+  padding-right: 20px; /* 오른쪽 여백 줄여서 끝에 더 가깝게 */
 }
 
+/* 내 메시지: 말풍선과 시간을 가로로 배치 */
 .message-wrapper.mine .msg-bubble {
-  background-color: #4A76F2; /* 이미지와 유사한 선명한 파란색 */
+  background-color: #4A76F2;
   color: #ffffff;
   border-radius: 12px 12px 0 12px;
-  width: fit-content;      /* 중요: 텍스트 길이에 말풍선 크기 맞춤 */
-  max-width: 65%;         /* 너무 길어지지 않게 방지 */
+  width: fit-content;
+  max-width: 60%;
   padding: 12px 18px;
   box-shadow: 0 2px 8px rgba(74, 118, 242, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+/* 내 메시지의 시간과 말풍선을 가로로 배치하는 컨테이너 */
+.message-wrapper.mine > div {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex-direction: row-reverse; /* 말풍선이 오른쪽, 시간이 왼쪽 */
 }
 
 .message-wrapper.mine .msg-date {
   color: #888;
-  text-align: right;
-  margin-top: 5px;
   font-size: 11px;
+  white-space: nowrap;
+  align-self: flex-end;
+  margin-bottom: 3px;
 }
 
-/* --- [상대방 메시지: 왼쪽 정렬] --- */
+/* --- 상대방 메시지: 왼쪽 끝으로 정렬 --- */
 .message-wrapper.others {
-  align-items: flex-start; /* 모든 요소를 왼쪽 끝으로 밀기 */
+  align-items: flex-start;
+  padding-left: 40px;
 }
 
 .message-wrapper.others .msg-bubble {
@@ -184,17 +252,28 @@
   color: #333333;
   border-radius: 12px 12px 12px 0;
   border: 1px solid #eee;
-  width: fit-content;      /* 중요: 텍스트 길이에 말풍선 크기 맞춤 */
-  max-width: 65%;
+  width: fit-content;
+  max-width: 60%;
   padding: 12px 18px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+/* 상대방 메시지의 시간과 말풍선을 가로로 배치하는 컨테이너 */
+.message-wrapper.others > div {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex-direction: row; /* 말풍선이 왼쪽, 시간이 오른쪽 */
 }
 
 .message-wrapper.others .msg-date {
   color: #aaa;
-  text-align: left;
-  margin-top: 5px;
   font-size: 11px;
+  white-space: nowrap;
+  align-self: flex-end;
+  margin-bottom: 3px;
 }
 
 /* 말풍선 내부 텍스트 스타일 */
@@ -202,7 +281,7 @@
   font-size: 13px;
   font-weight: 700;
   color: #444;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .msg-text {
@@ -212,7 +291,12 @@
   word-break: break-all;
 }
 
-/* 7. 입력창 하단 바 (둥근 스타일) */
+.msg-date {
+  font-size: 11px;
+  flex-shrink: 0; /* 시간은 축소되지 않도록 */
+}
+
+/* 7. 입력창 하단 바 */
 .chat-input-wrapper {
   padding: 15px 40px;
   background-color: #fff;
@@ -224,42 +308,7 @@
   align-items: center;
   background-color: #f0f2f5;
   padding: 10px 20px;
-  border-radius: 25px; /* 이미지처럼 둥글게 */
-  gap: 12px;
-}
-
-.sender-name {
-  font-size: 12px;
-  font-weight: 700;
-  color: #666;
-  margin-bottom: 6px;
-}
-
-.msg-text {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
-  word-break: break-all; /* 긴 단어 줄바꿈 */
-}
-
-.msg-date {
-  font-size: 11px;
-  margin-top: 8px;
-}
-
-/* 7. 입력창 스타일 */
-.chat-input-wrapper {
-  padding: 20px 40px;
-  background-color: #fff;
-  border-top: 1px solid #f0f0f0;
-}
-
-.chat-input-container {
-  display: flex;
-  align-items: center;
-  background-color: #f0f0f0;
-  padding: 10px 20px;
-  border-radius: 30px;
+  border-radius: 25px;
   gap: 12px;
 }
 
@@ -271,97 +320,65 @@
   font-size: 14px;
 }
 
+.plus-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .send-btn {
   background: none;
   border: none;
   color: #333;
   cursor: pointer;
   display: flex;
+  padding: 0;
+  width: 24px;
+  height: 24px;
 }
 
-.send-btn:hover { color: #1890ff; }
-/* 6. 메시지 목록 */
-.message-list {
-  flex: 1;
-  padding: 20px 40px;
-  overflow-y: auto;
+.send-btn:hover { 
+  color: #1890ff; 
+}
+
+/* 빈 상태 */
+.empty-state {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  background-color: #f5f7f9;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
 }
 
-/* 메시지 래퍼: 전체 너비를 쓰고 내부 아이템을 정렬함 */
-.message-wrapper {
-  display: flex;
-  width: 100%;
-  flex-direction: column; /* 이름과 말풍선을 세로로 배치 */
+.empty-state h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
 }
 
-/* --- 내 메시지: 오른쪽 끝으로 정렬 --- */
-.message-wrapper.mine {
-  align-items: flex-end; /* 모든 내부 요소를 오른쪽으로 밀기 */
-}
-
-.message-wrapper.mine .msg-bubble {
-  background-color: #4A76F2; /* 이미지의 밝은 파란색 */
-  color: #ffffff;
-  border-radius: 12px 12px 0 12px;
-  /* 말풍선이 텍스트 길이에 딱 맞게 조절 */
-  width: fit-content; 
-  max-width: 60%;
-}
-
-.message-wrapper.mine .msg-date {
-  color: #888;
-  text-align: right;
-  margin-right: 4px;
-}
-
-/* --- 상대방 메시지: 왼쪽 끝으로 정렬 --- */
-.message-wrapper.others {
-  align-items: flex-start; /* 모든 내부 요소를 왼쪽으로 밀기 */
-}
-
-.message-wrapper.others .msg-bubble {
-  background-color: #ffffff;
-  color: #333333;
-  border-radius: 12px 12px 12px 0;
-  border: 1px solid #eee;
-  /* 말풍선이 텍스트 길이에 딱 맞게 조절 */
-  width: fit-content;
-  max-width: 60%;
-}
-
-.message-wrapper.others .msg-date {
-  color: #aaa;
-  text-align: left;
-  margin-left: 4px;
-}
-
-/* 말풍선 내부 공통 */
-.msg-bubble {
-  padding: 12px 18px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 4px;
-}
-
-.sender-name {
-  font-size: 12px;
-  font-weight: 700;
-  color: #666;
-  margin-bottom: 6px;
-}
-
-.msg-text {
-  margin: 0;
+.empty-state p {
   font-size: 14px;
-  line-height: 1.5;
-  word-break: break-all;
 }
 
-.msg-date {
-  font-size: 11px;
+/* 상태 메시지 */
+.status-message,
+.msg-status {
+  text-align: center;
+  color: #999;
+  padding: 20px;
+  font-size: 14px;
+}
+
+/* 삭제된 메시지 */
+.message-wrapper.deleted .msg-text {
+  color: #999;
+  font-style: italic;
 }

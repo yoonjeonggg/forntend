@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import Header from '../../components/header';
@@ -61,7 +61,7 @@ export default function PublicBoard() {
     loadData();
   }, [datefilter, tag, searchQuery]);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     // 검색은 useEffect에서 자동으로 처리됨
   };
